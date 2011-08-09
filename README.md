@@ -2,34 +2,37 @@
 
 DO is a thin framework useful to manage remote servers through ssh.
 
-There are many other alternative, once of them is [capistrano](https://github.com/capistrano/capistrano)
+There are many other alternative, once of them is
+[capistrano](https://github.com/capistrano/capistrano).
 
 So why another one? Basically I need:
 
 * easy creation of my recipes
 * see perfectly what's happening on my remote servers
 * highly focus on smart actions, upload, download, sudo, replace.
-* manage more than one server each
-* use same behaviour for manage local tasks
+* manage easily more than one server at same time
+* use same syntax to manage local tasks
 
-## Installation
+## DO - Installation and Setup
 
 ```sh
 $ sudo gem install do
-$ doit setup
+$ doit setup # setup DO directory
+$ doit -T    # show DO tasks
 ```
 
-Now start to edit your `~/do/dorc` if necessary add your **servers** or **plugins**
+Now you can edit your `~/.do/dorc` adding your **servers** or **plugins**.
 
-## Do Files
+## DO - Files
 
 There are some way to generate **DO** tasks, you can:
 
-* Create a file called `Do` or `Dofile` in your project directory
-* Create `*.rake` files in `~/.do` directory
-* Create a file called `dorc` in `~/.do` directory
+* Create a file called `Do` or `Dofile` in your project directory (_project wide_)
+* Create `*.rake` files in `~/.do` directory (_system wide_)
+* Create a file called `dorc` in `~/.do` directory (_system wide_)
 
-You can change your **do home directory** with:
+You can change the *DO* home directory (default: `~/.do`) with these
+commands:
 
 ```
 DO_PATH='/my/new/.do/path'
@@ -37,7 +40,9 @@ ENV['DO_PATH']='/my/new/.do/path'
 export DO_PATH='/my/new/.do/path'
 ```
 
-## Features
+In this guide we assume that your `DO_PATH` is `~/.do`.
+
+## DO - Features
 
 * Easily server logging
 * SSH connections
@@ -118,10 +123,10 @@ server.wait
 # Press ENTER to continue...
 ```
 
-## Plugins
+## DO - Plugins
 
-Do, support plugins, you can manually add plugins in your `~/.do/dorc`
-adding a line like:
+DO, support plugins, you can manually add new one in your `~/.do/dorc`
+with a simple line:
 
 ```rb
 plugin :vim, 'https://raw.github.com/DAddYE/.do/master/vim.rake'
@@ -133,7 +138,7 @@ However we have a `doit` command for that:
 $ doit download[https://raw.github.com/DAddYE/.do/master/l.rake]
 ```
 
-This command add a new line in your `~/.do/dorc` and perform:
+This command add for you a new line in your `~/.do/dorc` and perform:
 
 ```sh
 $ doit plugin:vim
@@ -159,27 +164,26 @@ doit vim:install                 # install vim with python and ruby support
 
 ## Scenario and examples
 
-I'm porting my custom recipes to do, you can found my dot files
-[here](https://github.com/daddye/.do)
+I'm porting my custom recipes to *DO*, you can find my dot files
+[here](https://github.com/daddye/.do).
 
-I've server config in `~/.do/dorc`:
+Here servers definitions:
 
 ```rb
+# ~/.do/dorc
 keys = %w(/keys/master.pem /keys/instances.pem /keys/stage.pem)
 server :sho0, 'sho0.lipsiasoft.biz', 'root', :keys => keys
 server :srv0, 'srv0.lipsiasoft.biz', 'root', :keys => keys
 server :srv1, 'srv1.lipsiasoft.biz', 'root', :keys => keys
 server :srv2, 'srv2.lipsiasoft.biz', 'root', :keys => keys
-
-plugin "configure-server", "https://raw.github.com/gist/112..."
 ```
 
-Then I've some recipes in my `~/.do` path where I do common tasks.
+I've also some recipes in my `~/.do` path:
 
 ```rb
-# ~/.do/configure.
+# ~/.do/configure.rake
 namespace :configure
-  desc "upgrade rubygems and install usefull gems"
+  desc "upgrade rubygems and install useful gems"
   task :gems => :ree do
     run "gem update --system" if yes?("Do you want to update rubygems?")
     run "gem install rake"
@@ -212,7 +216,7 @@ namespace :configure
 ...
 ```
 
-I call those with:
+I call these task with:
 
 ```sh
 $ doit configure:gems
@@ -220,8 +224,8 @@ $ doit configure:motd
 $ doit configure:mysql
 ```
 
-**NOTE** that like rake tasks you are be able to add prerequisites to
-any task, in this case:
+**NOTE** like rake tasks you are be able to add prerequisites to
+any task, ex:
 
 ```rb
 task :mysql => :yum do; ...; end
@@ -258,31 +262,33 @@ namespace :l do
 end
 ```
 
-When I need to setup a new project I do:
+When I need to setup a new project:
 
 ``` sh
 $ doit l:setup
 $ doit l:commit # to make a fast commit and push
 ```
 
-As you can see define remote and local task is simple like making common
-rake tasks, infact this gem handle rake.
+As you can see, define remote and local task, is simple like making
+standard rake tasks. *DO* extend `Rake`.
 
-## Filtering
+## DO - Filtering
 
-Sometimes you want to perform a task only on one or some servers:
+Sometimes you want to perform a task only on some servers:
 
 ```sh
 $ doit configure:new --only-srv1 --only-srv2
 $ doit configure:new --except-srv1
 ```
 
-## Awesome output
+## DO - Output (Awesome...)
 
-What I really need is a great understandable, colored output that clarify
+What I really wanted was a great understandable, colored output that clarify
 me what's happen on my remote servers.
 
-```
+Here a example output of my tasks:
+
+```sh
 root@sho0 ~ # touch /root/.bashrc
 root@sho0 ~ # replace all in '/root/.bashrc'
 root@sho0 ~ # replace all in '/etc/motd'
