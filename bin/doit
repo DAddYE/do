@@ -19,7 +19,7 @@ puts "*" * 60
 puts "\e[0m"
 
 Rake.application.init
-Rake.application.instance_variable_set(:@name, 'do')
+Rake.application.instance_variable_set(:@name, 'doit')
 load(File.expand_path('../../lib/do/commands.rb', __FILE__))
 DO.recipes.each { |recipe| Rake.application.add_import(recipe) }
 Rake.application.load_imports

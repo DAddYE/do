@@ -12,6 +12,15 @@ So why another one? Basically I need:
 * manage more than one server each
 * use same behaviour for manage local tasks
 
+## Installation
+
+```sh
+$ sudo gem install do
+$ doit do:setup
+```
+
+Now start to edit your `~/do/dorc` file and have fun!
+
 ## Files
 
 There are some way to generate **DO** tasks, you can:
@@ -168,9 +177,9 @@ namespace :configure
 I call those with:
 
 ```sh
-$ do configure:gems
-$ do configure:motd
-$ do configure:mysql
+$ doit configure:gems
+$ doit configure:motd
+$ doit configure:mysql
 ```
 
 **NOTE** that like rake tasks you are be able to add prerequisites to
@@ -214,8 +223,8 @@ end
 When I need to setup a new project I do:
 
 ``` sh
-$ do l:setup
-$ do l:commit # to make a fast commit and push
+$ doit l:setup
+$ doit l:commit # to make a fast commit and push
 ```
 
 As you can see define remote and local task is simple like making common
@@ -226,8 +235,8 @@ rake tasks, infact this gem handle rake.
 Sometimes you want to perform a task only on one or some servers:
 
 ```sh
-$ do configure:new --only-srv1 --only-srv2
-$ do configure:new --except-srv1
+$ doit configure:new --only-srv1 --only-srv2
+$ doit configure:new --except-srv1
 ```
 
 ## Awesome output
