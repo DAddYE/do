@@ -20,6 +20,6 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency "rspec"
 
   gem.post_install_message  = "\e[32m" + ("*" * 60) + "\n"
-  gem.post_install_message += "*" + "DO - IT! \e[1m$ doit do:setup\e[32m".center(58) + "*"
+  gem.post_install_message += "*" + "DO - IT! $ doit setup".center(58) + "*" + "\n"
   gem.post_install_message += ("*" * 60) + "\n\e[0m"
 end

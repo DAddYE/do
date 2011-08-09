@@ -16,18 +16,17 @@ So why another one? Basically I need:
 
 ```sh
 $ sudo gem install do
-$ doit do:setup
+$ doit setup
 ```
 
-Now start to edit your `~/do/dorc` file and have fun!
+Now start to edit your `~/do/dorc` if necessary add your **servers** or **plugins**
 
-## Files
+## Do Files
 
 There are some way to generate **DO** tasks, you can:
 
-* Create a file called `Do` in your project directory
-* Create a file called `Dofile` in your project directory
-* Create `*.rake` files in `~/.do` directory, aka **home dir**
+* Create a file called `Do` or `Dofile` in your project directory
+* Create `*.rake` files in `~/.do` directory
 * Create a file called `dorc` in `~/.do` directory
 
 You can change your **do home directory** with:
@@ -59,7 +58,7 @@ server.run 'uname', '-a'
 # root@srv1 ~ # uname -a
 # Linux srv1.lipsiasoft.net 2.6.18-194.32.1.el5  x86_64 x86_64 x86_64 GNU/Linux
 
-server.run 'mysqladmin -u root -p password 'oldone', 'newpassword'
+server.run 'mysqladmin -u root -p password "oldone"', 'newpassword'
 # root@srv1 ~ # mysqladmin -u root -p password 'oldone'
 # Enter password: oldone
 # mysqladmin: connect to server at 'localhost' failed
@@ -117,6 +116,45 @@ server.yes? "Do you want to proceed"
 
 server.wait
 # Press ENTER to continue...
+```
+
+## Plugins
+
+Do, support plugins, you can manually add plugins in your `~/.do/dorc`
+adding a line like:
+
+```rb
+plugin :vim, 'https://raw.github.com/DAddYE/.do/master/vim.rake'
+```
+
+However we have a `doit` command for that:
+
+```sh
+$ doit download[https://raw.github.com/DAddYE/.do/master/l.rake]
+```
+
+This command add a new line in your `~/.do/dorc` and perform:
+
+```sh
+$ doit plugin:vim
+```
+
+which download and install in your `~/.do/dorc` directory a new rake
+file.
+
+Once this happen you are be able to see new tasks:
+
+```sh
+$ doit -T
+
+************************************************************
+*                         DO - IT!                         *
+************************************************************
+
+doit plugin:vim                  # install vim plugin
+doit setup                       # setup a working home directory
+doit vim:configure               # configure with a janus custom template
+doit vim:install                 # install vim with python and ruby support
 ```
 
 ## Scenario and examples

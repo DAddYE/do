@@ -51,8 +51,8 @@ module DO
     #   plugin "configuration", "https://gist.github.com/raw/xys.rake"
     #
     def plugin(name, repo)
-      desc "Install #{name} plugin"
-      local("plugin:#{name}" => "do:setup") do
+      desc "install #{name} plugin"
+      local("plugin:#{name}" => :setup) do
         log "\e[36m## Installing plugin %s\e[0m" % name
         Dir.mkdir(DO_PATH) unless File.exist?(DO_PATH)
         sh "curl --location --progress-bar #{repo} > #{File.join(DO_PATH, '%s.rake' % name)}"
