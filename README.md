@@ -288,7 +288,7 @@ me what's happen on my remote servers.
 
 Here a example output of my tasks:
 
-```sh
+```
 root@sho0 ~ # touch /root/.bashrc
 root@sho0 ~ # replace all in '/root/.bashrc'
 root@sho0 ~ # replace all in '/etc/motd'
