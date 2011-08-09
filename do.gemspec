@@ -18,4 +18,8 @@ Gem::Specification.new do |gem|
   gem.add_dependency "net-ssh",  "~>2.1.4"
   gem.add_dependency "net-sftp", "~>2.0.5"
   gem.add_development_dependency "rspec"
+
+  gem.post_install_message  = "\e[32m" + ("*" * 60) + "\n"
+  gem.post_install_message += "*" + "DO - IT! \e[1m$ doit do:setup\e[32m".center(58) + "*"
+  gem.post_install_message += ("*" * 60) + "\n\e[0m"
 end

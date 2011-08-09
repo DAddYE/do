@@ -14,7 +14,7 @@ ARGV.delete_if { |a| a =~ /--(only|except)/ }
 
 puts "\e[32m"
 puts "*" * 60
-puts "*" + "DO".center(58) + "*"
+puts "*" + "DO - IT!".center(58) + "*"
 puts "*" * 60
 puts "\e[0m"
 

@@ -53,8 +53,9 @@ module DO
     def plugin(name, repo)
       desc "Install #{name} plugin"
       local("plugin:#{name}" => "do:setup") do
+        log "\e[36m## Installing plugin %s\e[0m" % name
         Dir.mkdir(DO_PATH) unless File.exist?(DO_PATH)
-        sh "curl --location --progress-bar #{repo} > #{File.join(DO_PATH, name + '.rake')}"
+        sh "curl --location --progress-bar #{repo} > #{File.join(DO_PATH, '%s.rake' % name)}"
       end
     end
 
@@ -129,7 +130,7 @@ module DO
     ##
     # Log text under current_server if available
     #
-    def log(text, new_line=true)
+    def log(text="", new_line=true)
       if current_server
         current_server.log(text, new_line)
       else
@@ -142,15 +143,4 @@ end # DO
 
 self.extend DO::Commands
 
-local :servers do
-  servers_selected.replace(servers)
-end
-
-namespace :do do
-  desc "setup a working home directory"
-  local :setup do
-    File.mkdir(DO_PATH) unless File.exist?(DO_PATH)
-    sh 'touch %s' % File.join(DO_PATH, 'dorc')
-    sh 'ln -s %s %s' % [File.join(DO_PATH, 'dorc'), File.expand_path("~/.dorc")]
-  end
-end
+load(File.expand_path('../common.rb', __FILE__))

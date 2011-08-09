@@ -39,7 +39,7 @@ module DO
     # ==== Examples:
     #   DO::Server::LOG_FORMAT = "%s@%s$ %s"
     #
-    def log(text, new_line=true)
+    def log(text="", new_line=true)
       text += "\n" if new_line && text[-1] != ?\n
       logger.print LOG_FORMAT % [user, name, text]
     end
