@@ -2,7 +2,7 @@
 
 DO is a thin framework useful to manage remote servers through ssh.
 
-There are many other alternative, once of them is
+There are many other alternatives, once of them is
 [capistrano](https://github.com/capistrano/capistrano).
 
 So why another one? Basically I need:
