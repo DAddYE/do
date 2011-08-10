@@ -32,7 +32,7 @@ end
 
 desc "setup a working home directory"
 local :setup do
-  File.mkdir(DO_PATH) unless File.exist?(DO_PATH)
+  Dir.mkdir(DO_PATH) unless File.exist?(DO_PATH)
   hrc = File.expand_path("~/.dorc")
   orc = File.join(DO_PATH, 'dorc')
   unless File.exist?(orc)
