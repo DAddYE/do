@@ -10,12 +10,12 @@ module DO
     #   end
     #
     def wait
-      puts "\e[36mPress ENTER to continue...\e[0m"
-      STDIN.gets
+      log "\e[36mPress ENTER to continue...\e[0m"
+      $stdin.gets
     end
 
     ##
-    # Ask question to your STDIN.
+    # Ask question to your $stdin.
     # This command is useful in conjunction with a CLI
     #
     # ==== Example
@@ -27,7 +27,7 @@ module DO
       result = ""
       loop do
         log("\e[36m%s: \e[0m" % question, false)
-        result = STDIN.gets.chomp
+        result = $stdin.gets.chomp
         break if allow_blank || result != ""
       end
       result
@@ -46,10 +46,19 @@ module DO
       question += "?" if question[-1] != ??
       loop do
         log("\e[36m%s (y/n): \e[0m" % question, false)
-        result = STDIN.gets.chomp
+        result = $stdin.gets.chomp
         break if result =~ /y|yes|n|no/i
       end
       return result =~ /y|yes/i
+    end
+
+    ##
+    # Print the text into logger buffer, if you want to change
+    # the stream edit the constant DO_LOGGER
+    #
+    def log(text, new_line=false)
+      text += "\n" if new_line && text[-1] != ?\n
+      DO_LOGGER.print text
     end
   end # Utils
 end # DO

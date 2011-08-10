@@ -28,4 +28,14 @@ RSpec::Core::RakeTask.new("spec") do |t|
   t.rspec_opts = %w(-fs --color --fail-fast)
 end
 
+Dir['spec/**/*_spec.rb'].each do |file|
+  name = File.basename(file, '.rb').gsub(/_spec$/, '')
+  desc "Run only the #{name} task"
+  RSpec::Core::RakeTask.new("spec:#{name}") do |t|
+    t.skip_bundler = true
+    t.pattern = file
+    t.rspec_opts = %w(-fs --color --fail-fast)
+  end
+end
+
 task :default => :spec

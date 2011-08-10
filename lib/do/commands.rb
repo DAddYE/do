@@ -131,16 +131,10 @@ module DO
     # Log text under current_server if available
     #
     def log(text="", new_line=true)
-      if current_server
-        current_server.log(text, new_line)
-      else
-        text += "\n" if new_line && text[-1] != ?\n
-        print(text)
-      end
+      current_server ? current_server.log(text, new_line) : super(text, new_line)
     end
   end # Commands
 end # DO
 
 self.extend DO::Commands
-
-load(File.expand_path('../common.rb', __FILE__))
+load File.expand_path('../common.rb', __FILE__)

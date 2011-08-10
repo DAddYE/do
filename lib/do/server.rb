@@ -8,7 +8,6 @@ module DO
     LOG_FORMAT = "\e[36m%s\e[33m@\e[31m%s \e[33m~ \e[35m#\e[0m %s" unless defined?(LOG_FORMAT)
 
     attr_reader :name, :host, :user, :options
-    attr_accessor :logger
 
     ##
     # Initialize a new DO Server
@@ -20,11 +19,9 @@ module DO
     #
     # ==== Examples:
     #   srv1 = DO::Server.new(:srv1, 'srv1.lipsiasoft.biz', 'root', :keys => %w[/path/to/key.pem]
-    #   srv1.logger = StringIO.new # default is STDOUT
     #
     def initialize(name, host, user, options={})
      @name, @host, @user, @options = name, host, user, options
-     @logger = STDOUT
     end
 
     ##
@@ -40,8 +37,7 @@ module DO
     #   DO::Server::LOG_FORMAT = "%s@%s$ %s"
     #
     def log(text="", new_line=true)
-      text += "\n" if new_line && text[-1] != ?\n
-      logger.print LOG_FORMAT % [user, name, text]
+      super(LOG_FORMAT % [user, name, text], new_line)
     end
 
     ##
@@ -81,13 +77,13 @@ module DO
       result = ""
       ssh.exec!(cmd) do |channel, stream, data|
         result << data
-        logger.print(data) unless options[:silent]
+        DO_LOGGER.print(data) unless options[:silent]
         if options[:input]
           match = options[:match] || /^Enter password:/
           if data =~ match
             options[:input] += "\n" if options[:input][-1] != ?\n
             channel.send_data(options[:input])
-            logger.puts(options[:input]) unless options[:silent]
+            DO_LOGGER.puts(options[:input]) unless options[:silent]
           end
         end
       end

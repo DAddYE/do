@@ -1,4 +1,5 @@
 DO_PATH = ENV['DO_PATH'] ||= File.expand_path("~/.do") unless defined?(DO_PATH)
+DO_LOGGER = $stdout unless defined?(DO_LOGGER)
 
 module DO
 

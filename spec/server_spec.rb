@@ -4,7 +4,6 @@ describe DO::Server do
   before do
     keys = %w(/Developer/src/LipsiaSoft/lipsiahosting/lib/lipsiarec/recipes/servers/resources/keys/Lipsiasoft.pem)
     @server = DO::Server.new(:sho0, 'sho0.lipsiasoft.biz', 'ec2-user', :keys => keys)
-    @server.logger = StringIO.new
     @fixture = File.expand_path('../fixtures/sample', __FILE__)
     @fixture_was = File.read(@fixture)
   end

@@ -1,19 +1,22 @@
 require 'rubygems' unless defined?(Gem)
+require 'stringio'
+
+DO_PATH   = File.expand_path('../tmp', __FILE__)
+DO_LOGGER = StringIO.new
+
 require 'bundler/setup'
 require 'rspec'
 require 'fileutils'
 require 'do'
+require 'do/commands'
 
-module Helper
-  def capture_stdout(&block)
-    stdout_was, $stdout = $stdout, StringIO.new
-    block.call
-    return $stdout
-  ensure
-    $stdout = stdout_was
+module Helpers
+  def logger
+    DO_LOGGER.string
   end
 end
 
-RSpec.configure do |config|
-  config.include(Helper)
+RSpec.configure do |c|
+  c.include DO::Commands
+  c.include Helpers
 end
