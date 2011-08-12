@@ -23,13 +23,17 @@ module DO
     #   new_pwd = ask "Tell me the new password of mysql"
     #   run "mysqladmin -u root -p password '#{new_pwd}', :input => old_pwd
     #
-    def ask(question, allow_blank=false)
+    def ask(*args)
+      question = args[0]
+      options = args.last.is_a?(Hash) ? args.pop : {}
       result = ""
+      `stty -echo` if options[:silent]
       loop do
         log("\e[36m%s: \e[0m" % question, false)
         result = $stdin.gets.chomp
-        break if allow_blank || result != ""
+        break if options[:allow_blank] || result != ""
       end
+      `stty echo` && log("\n", false) if options[:silent]
       result
     end
 
