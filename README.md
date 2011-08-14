@@ -13,12 +13,29 @@ So why another one? Basically I need:
 * manage easily more than one server at same time
 * a use same syntax to manage local tasks
 
+What really is *DO* ?
+
+* some like brew
+* some like rake
+* some like capistrano
+
+All togheter mixed to make your life easier.
+
+As mentioned before do is a fun mix of capistrano, rake, thor and brew.
+
+With *DO* you are be able to do easily common task on your local or remote machine.
+The aim of *DO* is to become the unique and universal tool language that permit you to make
+your own _brew_, _apt-get_ or _yum_ package, same syntax for all your machine.
+
 ## DO - Installation and Setup
 
 ```sh
 $ sudo gem install do
-$ doit setup # setup DO directory
-$ doit -T    # show DO tasks
+$ doit download # download a new recipe with --url=
+$ doit setup    # setup a working home directory
+$ doit version  # show version number
+$ doit list     # show task list
+$ doit help     # show help message
 ```
 
 Now you can edit your `~/.do/dorc` adding your **servers** or **plugins**.
@@ -135,7 +152,7 @@ plugin :vim, 'https://raw.github.com/DAddYE/.do/master/vim.rake'
 However we have a `doit` command for that:
 
 ```sh
-$ doit download[https://raw.github.com/DAddYE/.do/master/l.rake]
+$ doit download --url https://raw.github.com/DAddYE/.do/master/l.rake
 ```
 
 This command add for you a new line in your `~/.do/dorc` and perform:
@@ -150,11 +167,7 @@ file.
 Once this happen you are be able to see new tasks:
 
 ```sh
-$ doit -T
-
-************************************************************
-*                         DO - IT!                         *
-************************************************************
+$ doit list
 
 doit plugin:vim                  # install vim plugin
 doit setup                       # setup a working home directory
@@ -184,7 +197,7 @@ I've also some recipes in my `~/.do` path:
 # ~/.do/configure.rake
 namespace :configure
   desc "upgrade rubygems and install useful gems"
-  task :gems => :ree do
+  task :gems => :ree, :in => :web do
     run "gem update --system" if yes?("Do you want to update rubygems?")
     run "gem install rake"
     run "gem install highline"
@@ -193,18 +206,18 @@ namespace :configure
   end
 
   desc "create motd for each server"
-  task :motd do
+  task :motd, :in => :remote do
     replace :all, "Hey boss! Welcome to the \e[1m#{name}\e[0m of LipsiaSOFT s.r.l.\n", "/etc/motd"
   end
 
   desc "redirect emails to a real account"
-  task :root_emails do
+  task :root_emails, :in => :remote do
     append "\nroot: servers@lipsiasoft.com", "/etc/aliases"
     run "newaliases"
   end
 
   desc "mysql basic configuration"
-  task :mysql => :yum do
+  task :mysql => :yum, :in => :remote do
     run "yum install mysql-server mysql mysql-devel -y"
     run "chkconfig --level 2345 mysqld on"
     run "service mysqld restart"
@@ -228,14 +241,14 @@ $ doit configure:mysql
 any task, ex:
 
 ```rb
-task :mysql => :yum do; ...; end
+task :mysql => :yum, :in => :remote do; ...; end
 ```
 
 That's are some local tasks:
 
 ```rb
 namespace :l do
-  local :setup do
+  task :setup do
     name = File.basename(File.expand_path('.'))
     exit unless yes?('Do you want to setup "%s"?' % name)
     srv = nil
@@ -246,18 +259,18 @@ namespace :l do
 
     if File.exist?('.git')
       exit unless yes?('Project "%s" has already a working repo, do you want remove it?' % name)
-      sh 'rm -rf .git'
+      run 'rm -rf .git'
     end
 
-    sh 'git init'
-    sh 'git remote add origin git@lipsiasoft.biz:/%s.git' % name
-    Rake::Task['l:commit'].invoke if yes?("Are you ready to commit it, database, config etc is correct?")
+    run 'git init'
+    run 'git remote add origin git@lipsiasoft.biz:/%s.git' % name
+    run_task('l:commit') if yes?("Are you ready to commit it, database, config etc is correct?")
   end
 
-  local :commit do
-    sh 'git add .'
-    sh 'git commit -a'
-    sh 'git push origin master'
+  task :commit do
+    run 'git add .'
+    run 'git commit -a'
+    run 'git push origin master'
   end
 end
 ```
@@ -277,8 +290,8 @@ standard rake tasks. *DO* extend `Rake`.
 Sometimes you want to perform a task only on some servers:
 
 ```sh
-$ doit configure:new --only-srv1 --only-srv2
-$ doit configure:new --except-srv1
+$ doit configure:new --srv1 # apply recipes only on srv1
+$ doit configure:new --no-srv1 # apply recipes to all except srv1
 ```
 
 ## DO - Output (Awesome...)
