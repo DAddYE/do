@@ -1,10 +1,9 @@
-require 'rake/dsl_definition'
-require 'rake'
-
 module DO
   module Commands
-    include Rake::DSL
+    include DO::Tasks
     include DO::Utils
+
+    extend self
 
     ##
     # Array of DO::Server defined in our tasks
@@ -13,11 +12,8 @@ module DO
       @_servers ||= []
     end
 
-    ##
-    # An array of DO::Server selected by our remote task
-    #
-    def servers_selected
-      @_servers_selected ||=[]
+    def remote
+      servers.map(&:name)
     end
 
     ##
@@ -26,6 +22,40 @@ module DO
     def current_server
       @_current_server
     end
+
+    ##
+    # Set an option to the given value
+    #
+    def set(option, value)
+      define_method(option) { value }
+    end
+
+    ##
+    # DO loads rakefiles in these locations:
+    #
+    #   ~/do/dorc
+    #   ~/do/*.rake
+    #   ./Do
+    #   ./Dofile
+    #
+    # DO_PATH, default is ~/do.
+    #
+    def recipes
+      @_recipes ||= (
+        %w[dorc **/*.rake].map { |f| Dir[File.join(DO_PATH, f)] }.flatten +
+        %w[./Do ./Dofile].map { |f| File.expand_path(f) } <<
+        File.expand_path('../common.rb', __FILE__)
+      ).reject { |f| !File.exist?(f) }
+    end
+
+    def load_recipes
+      recipes.each { |f| load_recipe(f) }
+    end
+
+    def load_recipe(path)
+      instance_eval(File.read(path), __FILE__, __LINE__)
+    end
+    alias :load :load_recipe
 
     ##
     # This method define our servers
@@ -39,7 +69,20 @@ module DO
     #
     def server(name, host, user, options={})
       servers.push(DO::Server.new(name, host, user, options))
-      local(name) { servers_selected.replace(servers.select { |s| s.name == name }) }
+      task name do |opts, b|
+        allowed  = opts.map { |k,v| k if remote.include?(k) && v }.compact
+        denied   = opts.map { |k,v| k if remote.include?(k) && v == false }.compact
+        if (allowed.empty? && denied.empty?) ||
+           (!allowed.empty? && allowed.include?(name)) ||
+           (!denied.empty? && !denied.include?(name))
+          @_current_server = servers.find { |s| s.name == name }
+          begin
+            b.arity == 1 ? b.call(opts) : b.call
+          ensure
+            @_current_server = nil
+          end
+        end
+      end
     end
 
     ##
@@ -52,80 +95,16 @@ module DO
     #
     def plugin(name, repo)
       desc "install #{name} plugin"
-      local("plugin:#{name}" => :setup) do
-        log "\e[36m## Installing plugin %s\e[0m" % name
-        Dir.mkdir(DO_PATH) unless File.exist?(DO_PATH)
-        sh "curl --location --progress-bar #{repo} > #{File.join(DO_PATH, '%s.rake' % name)}"
+      namespace :plugin do
+        task(name => :setup) do
+          log "\e[36m## Installing plugin %s\e[0m" % name
+          Dir.mkdir(DO_PATH) unless File.exist?(DO_PATH)
+          path = File.join(DO_PATH, '%s.rake' % name)
+          sh :curl, '--location', '--progress-bar', repo, '>', path
+          load_recipe(path)
+        end
       end
     end
-
-    ##
-    # Execute DO::Server operations on remote defined servers.
-    #
-    # ==== Examples:
-    #   # Define our ssh connections
-    #   keys = %w[key1.pem key2.pem key3.pem key4.pem]
-    #   server :srv1, 's1.domain.local', 'user', :keys => keys
-    #   server :srv2, 's2.domain.local', 'user', :keys => keys
-    #   server :srv3, 's3.domain.local', 'user', :keys => keys
-    #   server :srv4, 's4.domain.local', 'user', :keys => keys
-    #
-    #   # => Executes commands only to :srv1, :srv2, :srv3
-    #   remote :name => [:srv1, :srv2, :srv3] do; ...; end
-    #
-    #   # => Same as above
-    #   task :name => [:srv1, :srv2, :srv3] do; ...; end
-    #
-    #   # => Executes commands on all defined servers
-    #   remote :name  => :servers do; ...; end
-    #   # => Same as above
-    #   remote :name => do; ...; end
-    #   # => Same as above
-    #   task :name do; ...; end
-    #   # => Same as above
-    #   local :name => :servers do; ...; end
-    #
-    #   # => Execute the task on your machine
-    #   local :name do; sh 'uname'; end
-    #
-    #   # => Execute commands both on servers side and local side
-    #   remote :name do |t|
-    #     t.run 'run this command on remote servers'
-    #     sh 'run this command on my local machine'
-    #   end
-    #
-    #   # same of:
-    #
-    #   task :name do |t|
-    #     t.run 'command on remote servers'
-    #     sh 'command on my local machine'
-    #   end
-    #
-    #   # => Execute command only on remote server srv1
-    #   task :name => :srv1 do
-    #     run 'command only on remote server srv1'
-    #   end
-    #
-    def remote(args, &block)
-      args = { args => :servers } unless args.is_a?(Hash)
-      local(args) do
-        name = args.is_a?(Hash) ? args.keys[0] : args
-        servers_selected.each do |current|
-          begin
-            server_was, @_current_server = @_current_server, current
-            self.class.send(:define_method, name, &block)
-            method = self.class.instance_method(name)
-            self.class.send(:remove_method, name)
-            block.arity == 1 ? method.bind(self).call(current) : method.bind(current).call
-          ensure
-            @_current_server = server_was
-          end # begin
-        end # servers
-      end # local
-    end
-
-    alias_method :local, :task
-    alias_method :task, :remote
 
     ##
     # Log text under current_server if available
@@ -133,8 +112,16 @@ module DO
     def log(text="", new_line=true)
       current_server ? current_server.log(text, new_line) : super(text, new_line)
     end
+
+    ##
+    # Run commands on current_server if available
+    #
+    def run(*args)
+      current_server ? current_server.run(*args) : super(*args)
+    end
+
+    def method_missing(method, *args,  &block)
+      current_server && current_server.respond_to?(method) ? current_server.send(method, *args) : super(method, *args,  &block)
+    end
   end # Commands
 end # DO
-
-self.extend DO::Commands
-load File.expand_path('../common.rb', __FILE__)

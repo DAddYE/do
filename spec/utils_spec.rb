@@ -5,6 +5,11 @@ describe 'DO::Utils' do
     @_shell ||= Class.new { include DO::Utils }.new
   end
 
+  it 'should log' do
+    DO_LOGGER.should_receive(:print).with('foo')
+    shell.log 'foo'
+  end
+
   it 'should should ask' do
     DO_LOGGER.should_receive(:print).with("\e[36mShould I overwrite it?: \e[0m")
     $stdin.should_receive(:gets).and_return('Sure')

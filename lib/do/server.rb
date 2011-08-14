@@ -5,8 +5,6 @@ module DO
   class Server
     include DO::Utils
 
-    LOG_FORMAT = "\e[36m%s\e[33m@\e[31m%s \e[33m~ \e[35m#\e[0m %s" unless defined?(LOG_FORMAT)
-
     attr_reader :name, :host, :user, :options
 
     ##
@@ -26,7 +24,7 @@ module DO
 
     ##
     # Method used to print a formatted version of our commands
-    # using DO::Server::LOG_FORMAT, by default we have a nice
+    # using DO::Server::DO_LOGGER_FORMAT, by default we have a nice
     # colored version like:
     #
     #   srv1@root ~ # ls -al
@@ -34,10 +32,10 @@ module DO
     # If you don't like colors or our format feel free to edit:
     #
     # ==== Examples:
-    #   DO::Server::LOG_FORMAT = "%s@%s$ %s"
+    #   DO::Server::DO_LOGGER_FORMAT = "%s@%s$ %s"
     #
     def log(text="", new_line=true)
-      super(LOG_FORMAT % [user, name, text], new_line)
+      super(DO_LOGGER_FORMAT % [user, name, text], new_line)
     end
 
     ##

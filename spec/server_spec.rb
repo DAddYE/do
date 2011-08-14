@@ -2,8 +2,7 @@ require 'spec_helper'
 
 describe DO::Server do
   before do
-    keys = %w(/Developer/src/LipsiaSoft/lipsiahosting/lib/lipsiarec/recipes/servers/resources/keys/Lipsiasoft.pem)
-    @server = DO::Server.new(:sho0, 'sho0.lipsiasoft.biz', 'ec2-user', :keys => keys)
+    @server = DO::Server.new(:sho0, 'sho0.lipsiasoft.biz', 'ec2-user', :keys => Dir['/Developer/keys/*.pem'])
     @fixture = File.expand_path('../fixtures/sample', __FILE__)
     @fixture_was = File.read(@fixture)
   end
@@ -13,7 +12,7 @@ describe DO::Server do
     release.should match(/Linux/)
   end
 
-  it 'should upload a something' do
+  it 'should upload something' do
     @server.upload @fixture, '/tmp/sample'
     @server.exist?('/tmp/sample').should be_true
   end

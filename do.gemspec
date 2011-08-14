@@ -14,10 +14,8 @@ Gem::Specification.new do |gem|
   gem.name          = "do"
   gem.require_paths = ['lib']
   gem.version       = DO::VERSION
-  gem.add_dependency "rake",     "~>0.9.2"
   gem.add_dependency "net-ssh",  "~>2.1.4"
   gem.add_dependency "net-sftp", "~>2.0.5"
-  gem.add_development_dependency "rspec"
 
   gem.post_install_message  = "\e[32m" + ("*" * 60) + "\n"
   gem.post_install_message += "*" + "DO - IT! $ doit setup".center(58) + "*" + "\n"

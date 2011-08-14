@@ -1,28 +1,13 @@
 DO_PATH = ENV['DO_PATH'] ||= File.expand_path("~/.do") unless defined?(DO_PATH)
 DO_LOGGER = $stdout unless defined?(DO_LOGGER)
+DO_LOGGER_FORMAT = "\e[36m%s\e[33m@\e[31m%s \e[33m~ \e[35m#\e[0m %s" unless defined?(DO_LOGGER_FORMAT)
 
 module DO
-
+  autoload :CLI,      'do/cli.rb'
   autoload :Server,   'do/server.rb'
   autoload :Utils,    'do/utils.rb'
+  autoload :Commands, 'do/commands.rb'
+  autoload :Tasks,    'do/tasks.rb'
+  autoload :Parser,   'do/parser.rb'
   autoload :VERSION,  'do/version.rb'
-
-  extend self
-
-  ##
-  # DO loads rakefiles in these locations:
-  #
-  #   ~/do/dorc
-  #   ~/do/*.rake
-  #   ./Do
-  #   ./Dofile
-  #
-  # DO_PATH, default is ~/do.
-  #
-  def recipes
-    @_recipes ||= (
-      %w[dorc *.rake].map { |f| Dir[File.join(DO_PATH, f)] }.flatten +
-      %w[./Do ./Dofile].map { |f| File.expand_path(f) }
-    ).reject { |f| !File.exist?(f) }
-  end
 end # DO

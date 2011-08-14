@@ -11,7 +11,7 @@ So why another one? Basically I need:
 * see perfectly what's happening on my remote servers
 * highly focus on smart actions, upload, download, sudo, replace.
 * manage easily more than one server at same time
-* use same syntax to manage local tasks
+* a use same syntax to manage local tasks
 
 ## DO - Installation and Setup
 

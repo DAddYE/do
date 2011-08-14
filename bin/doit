@@ -1,30 +1,6 @@
 #!/usr/bin/env ruby
 $:.push File.expand_path("../../lib", __FILE__)
 require 'rubygems' unless defined?(Gem)
-require 'rake/dsl_definition'
-require 'rake'
 require 'do'
 
-ARGV << "-T" if ARGV.empty?
-
-only   = ARGV.map { |a| a =~ /--only-(.*)/ && $1.to_sym }.compact
-except = ARGV.map { |a| a =~ /--except-(.*)/ && $1.to_sym }.compact
-
-ARGV.delete_if { |a| a =~ /--(only|except)/ }
-
-puts "\e[32m"
-puts "*" * 60
-puts "*" + "DO - IT!".center(58) + "*"
-puts "*" * 60
-puts "\e[0m"
-
-Rake.application.init
-Rake.application.instance_variable_set(:@name, 'doit')
-load(File.expand_path('../../lib/do/commands.rb', __FILE__))
-DO.recipes.each { |recipe| Rake.application.add_import(recipe) }
-Rake.application.load_imports
-
-servers.delete_if { |server| !only.include?(server.name)  } unless only.empty?
-servers.delete_if { |server| except.include?(server.name) }
-
-Rake.application.top_level
+DO::CLI.start(*ARGV)

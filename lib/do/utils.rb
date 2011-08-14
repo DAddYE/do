@@ -60,5 +60,15 @@ module DO
       text += "\n" if new_line && text[-1] != ?\n
       DO_LOGGER.print text
     end
+
+    ##
+    # Execute a local command
+    #
+    def run(*cmds)
+      cmd = cmds.map(&:to_s).join(' ')
+      log DO_LOGGER_FORMAT % [:do, :local, cmd]
+      system cmd
+    end
+    alias :sh :run # keep old compatibility
   end # Utils
 end # DO
