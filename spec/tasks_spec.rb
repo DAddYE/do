@@ -150,5 +150,14 @@ describe DO::Tasks do
       cmd.task(:demo => :demos)
       expect { cmd.task_run(:demo) }.to_not raise_error
     end
+
+    it 'should resolve dependency namespace' do
+      cmd.tasks.clear
+      cmd.namespace :ns do
+        cmd.task(:foo){@a=1}
+        cmd.task(:bar => :foo){ @a.should == 1 }
+      end
+      cmd.run_task('ns:bar')
+    end
   end
 end

@@ -153,5 +153,18 @@ describe DO::Commands do
       end
       cmd.task_run(:hostname, '--srv1')
     end
+
+    it 'should handle deps' do
+      cmd.server :sho0, 'sho0.lipsiasoft.biz', 'root', :keys => Dir['/Developer/keys/*.pem']
+      cmd.task(:dep){ @a=1 }
+      cmd.task :hostname => :dep, :in => :remote do |options|
+        cmd.run('hostname').should match(/sho0/)
+        @a.should == 1
+      end
+      cmd.tasks[-1][:name].should == 'hostname'
+      cmd.tasks[-1][:deps].should == [:dep]
+      cmd.tasks[-1][:in].should == [:remote]
+      cmd.task_run(:hostname)
+    end
   end # DO::Server
 end # DO::Commands

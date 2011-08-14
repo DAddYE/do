@@ -20,15 +20,22 @@ module DO
     end
 
     def task(name, options={},  &block)
-      name, deps = name.is_a?(Hash) ? [name.keys[0], Array(name.values[0])] : [name, []]
-      tasks << options.merge({
+      name, deps, options = *case name
+        when Hash
+          in_was = name.delete(:in)
+          name_and_deps = name.shift
+          name.merge!(:in => in_was) if in_was
+          name_and_deps.push(name)
+        else [name, [], options]
+      end
+      tasks.push(options.merge({
         :name      => name.to_s,
         :desc      => @_desc.to_s,
-        :deps      => deps,
+        :deps      => Array(deps),
         :namespace => @_namespace.to_s,
         :block     => block,
         :in        => Array(options[:in])
-      })
+      }))
       tasks[-1]
     ensure
       @_desc = nil
@@ -38,7 +45,10 @@ module DO
       args_was = args.dup
       task = task_find(args.shift)
       opts = DO::Parser.new(*args)
-      task[:deps].each { |d| task_run(*args.unshift(d).push('--dependency')) }
+      task[:deps].each do |dep|
+        name = dep.is_a?(Symbol) && task[:namespace] != '' ? '%s:%s' % [task[:namespace], dep] : dep
+        task_run(*args.unshift(name).push('--dependency'))
+      end
       if task[:in].empty?
         task[:block].arity == 1 ? task[:block].call(opts) : task[:block].call if task[:block]
       else
