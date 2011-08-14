@@ -1,3 +1,3 @@
 module DO
-  VERSION = "0.0.3" unless defined?(DO::VERSION)
+  VERSION = "0.1.0" unless defined?(DO::VERSION)
 end
