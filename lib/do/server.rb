@@ -87,11 +87,11 @@ module DO
             result << data
             DO_LOGGER.print(data) unless options[:silent]
             if options[:input]
-              match = options[:match] || /password:/i
+              match = options[:match] || /password/i
               if data =~ match
                 options[:input] += "\n" if options[:input][-1] != ?\n
                 channel.send_data(options[:input])
-                DO_LOGGER.puts(options[:input]) unless options[:silent] || data =~ /password:/i
+                DO_LOGGER.puts(options[:input]) unless options[:silent] || data =~ /password/i
               end
             end
           end
