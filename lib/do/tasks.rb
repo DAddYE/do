@@ -34,7 +34,7 @@ module DO
         :deps      => Array(deps),
         :namespace => @_namespace.to_s,
         :block     => block,
-        :in        => Array(options[:in])
+        :in        => Array(options[:in] ? options[:in] : options[:on])
       }))
       tasks[-1]
     ensure
