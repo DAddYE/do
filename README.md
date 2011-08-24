@@ -152,7 +152,7 @@ plugin :vim, 'https://raw.github.com/DAddYE/.do/master/vim.rake'
 However we have a `doit` command for that:
 
 ```sh
-$ doit download --url https://raw.github.com/DAddYE/.do/master/l.rake
+$ doit download --url https://raw.github.com/DAddYE/.do/master/vim.rake
 ```
 
 This command add for you a new line in your `~/.do/dorc` and perform:
