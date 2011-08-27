@@ -16,8 +16,9 @@ module DO
           # --foo
           # -foo
           when /^-{1,2}(.+)/
-            value = args[i+1] && args[i+1] != /^--/ ? args.delete_at(i+1) : true
-            options[$1.to_sym] = value
+            key = $1.to_sym
+            value = args[i+1] && args[i+1] !~ /^-{1,2}/ ? args.delete_at(i+1) : true
+            options[key] = value
         end
       end
 

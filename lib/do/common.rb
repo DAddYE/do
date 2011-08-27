@@ -83,5 +83,6 @@ task :help do
 
     Options:
       Each task can accept multiple options
+
   TEXT
 end

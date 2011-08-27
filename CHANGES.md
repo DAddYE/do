@@ -1,3 +1,7 @@
+## 0.1.3 - August 26, 2011
+
+* Fixed a small bug in option parser
+
 ## 0.1.2 - August 24, 2011
 
 * Tiny Regex change, and aliasing :on => :webserver for :in => :webserver [Thanks to Doug Johnson]
