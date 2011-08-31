@@ -1,3 +1,7 @@
+## 0.1.4 - August 31, 2011
+
+* Added support to auto completion
+
 ## 0.1.3 - August 26, 2011
 
 * Fixed a small bug in option parser
