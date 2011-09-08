@@ -1,3 +1,9 @@
+## 0.1.5 (Not yet released)
+
+* Append now add \n at the end of line if not present
+* Added options :recursive to download and upload methods
+* Added a new method for execute local task inside a remote server
+
 ## 0.1.4 - August 31, 2011
 
 * Added support to auto completion

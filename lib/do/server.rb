@@ -126,8 +126,15 @@ module DO
     #   up(/my/dir, /tmp, :recursive => true)
     #
     def upload(from, to, options={})
-      log "upload from '%s' to '%s'" % [from, to]
-      sftp.upload!(from, to)
+      sftp.upload!(from, to, options) do |event, uploader, *args|
+        case event
+          when :open then
+            log "download: #{args[0].local} (#{args[0].size} bytes)"
+          when :mkdir then
+            log "creating directory #{args[0]}"
+        end
+      end
+
     end
     alias :up :upload
 
@@ -142,8 +149,14 @@ module DO
     #   get(/tmp/dir, /my, :recursive => true)
     #
     def download(from, to, options={})
-      log "download from '%s' to '%s'" % [from, to]
-      sftp.download!(from, to)
+      sftp.download!(from, to, options) do |event, downloader, *args|
+        case event
+          when :open then
+            log "download: #{args[0].remote} (#{args[0].size} bytes)"
+          when :mkdir then
+            log "creating directory #{args[0]}"
+        end
+      end
     end
     alias :get :download
 
@@ -205,6 +218,7 @@ module DO
         log "'%s' already match your pattern" % file
         return false
       else
+        pattern += "\n" unless pattern[-1] == ?\n
         replacement = case where
           when :top, :start  then pattern+was
           when :bottom, :end then was+pattern

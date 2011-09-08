@@ -24,6 +24,16 @@ module DO
     end
 
     ##
+    # Run a specific(s) command(s) outside the server
+    #
+    def locally(&block)
+      server_was, @_current_server = @_current_server, nil
+      block.call
+    ensure
+      @_current_server = server_was
+    end
+
+    ##
     # Set an option to the given value
     #
     def set(option, value)
