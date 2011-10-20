@@ -74,7 +74,7 @@ module DO
         if options[:as] == 'root'
           cmd = "sudo #{cmd}"
         else
-          cmd = "su #{options[:as]} -c '#{cmd.gsub(/'/, "\'")}'"
+          cmd = "su #{options[:as]} -c '#{cmd.gsub("'", "'\\\\''")}'"
         end
       end
       log cmd
