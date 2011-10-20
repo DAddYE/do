@@ -72,9 +72,9 @@ module DO
       cmd = args.join(" ")
       if options[:as]
         if options[:as] == 'root'
-          cmd = "sudo #{cmd.gsub(/'/, "\'")}"
+          cmd = "sudo #{cmd}"
         else
-          cmd = "su #{options[:as]} -c '#{cmd.gsub(/'/, "\'")}'"
+          cmd = "su #{options[:as]} -c '#{cmd.gsub("'", "'\\\\''")}'"
         end
       end
       log cmd
