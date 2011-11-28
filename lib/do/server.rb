@@ -5,7 +5,7 @@ module DO
   class Server
     include DO::Utils
 
-    attr_reader :name, :host, :user, :options
+    attr_reader :name, :host, :user, :role, :options
 
     ##
     # Initialize a new DO Server
@@ -19,7 +19,7 @@ module DO
     #   srv1 = DO::Server.new(:srv1, 'srv1.lipsiasoft.biz', 'root', :keys => %w[/path/to/key.pem]
     #
     def initialize(name, host, user, options={})
-     @name, @host, @user, @options = name, host, user, options
+      @name, @host, @user, @role, @options = name, host, user, options.delete(:role), options
     end
 
     ##
@@ -128,13 +128,14 @@ module DO
     def upload(from, to, options={})
       sftp.upload!(from, to, options) do |event, uploader, *args|
         case event
-          when :open then
-            log "download: #{args[0].local} (#{args[0].size} bytes)"
-          when :mkdir then
-            log "creating directory #{args[0]}"
+        when :put
+          DO_LOGGER.print("\r" << DO_LOGGER_FORMAT % [user, name, "writing: #{to} (#{args[1] * 100 / args[0].size}%)"]); DO_LOGGER.flush
+        when :finish
+          DO_LOGGER.puts("\r" << DO_LOGGER_FORMAT % [user, name, "writing: #{to} (100%)"]); DO_LOGGER.flush
+        when :mkdir
+          log "creating directory #{args[0]}"
         end
       end
-
     end
     alias :up :upload
 
@@ -151,10 +152,12 @@ module DO
     def download(from, to, options={})
       sftp.download!(from, to, options) do |event, downloader, *args|
         case event
-          when :open then
-            log "download: #{args[0].remote} (#{args[0].size} bytes)"
-          when :mkdir then
-            log "creating directory #{args[0]}"
+        when :get
+          DO_LOGGER.print("\r" << DO_LOGGER_FORMAT % [user, name, "sending: #{from} (#{args[1] * 100 / args[0].size}%)"]); DO_LOGGER.flush
+        when :finish
+          DO_LOGGER.puts("\r" << DO_LOGGER_FORMAT % [user, name, "sending: #{from} (100%)"]); DO_LOGGER.flush
+        when :mkdir
+          log "creating directory #{args[0]}"
         end
       end
     end

@@ -12,9 +12,18 @@ module DO
       @_servers ||= []
     end
 
-    def remote
+    def all_remotes
       servers.map(&:name)
     end
+
+    def remotes
+      @_remotes ||= begin
+        name = ARGV[0]
+        servers.select { |s| s.name.to_s == name } + servers.select { |s| s.role.to_s == name }
+      end
+      @_remotes.map(&:name)
+    end
+    alias :remote :remotes
 
     ##
     # Returns the current server
@@ -36,8 +45,8 @@ module DO
     ##
     # Set an option to the given value
     #
-    def set(option, value)
-      define_method(option) { value }
+    def set(name, value)
+      (class << self; self; end).send(:define_method, name) { value }
     end
 
     ##
@@ -62,10 +71,26 @@ module DO
       recipes.each { |f| load_recipe(f) }
     end
 
+    def load_common
+      load File.expand_path('../common.rb', __FILE__)
+    end
+
     def load_recipe(path)
       instance_eval(File.read(path), __FILE__, __LINE__)
     end
     alias :load :load_recipe
+
+    def role(name)
+      servers_was = servers.dup
+      yield self
+      (servers-servers_was).each do |s|
+        s.instance_variable_set(:'@role', name)
+      end
+    end
+
+    def roles
+      servers.map(&:role).compact.uniq
+    end
 
     ##
     # This method define our servers
@@ -79,18 +104,15 @@ module DO
     #
     def server(name, host, user, options={})
       servers.push(DO::Server.new(name, host, user, options))
+      current = servers[-1]
+      set current.name, current
+      set current.role, servers.select { |s| s.role == current.role } if current.role
       task name do |opts, b|
-        allowed  = opts.map { |k,v| k if remote.include?(k) && v }.compact
-        denied   = opts.map { |k,v| k if remote.include?(k) && v == false }.compact
-        if (allowed.empty? && denied.empty?) ||
-           (!allowed.empty? && allowed.include?(name)) ||
-           (!denied.empty? && !denied.include?(name))
-          @_current_server = servers.find { |s| s.name == name }
-          begin
-            b.arity == 1 ? b.call(opts) : b.call
-          ensure
-            @_current_server = nil
-          end
+        @_current_server = servers.find { |s| s.name == current.name }
+        begin
+          b.arity == 1 ? b.call(opts) : b.call
+        ensure
+          @_current_server = nil
         end
       end
     end
