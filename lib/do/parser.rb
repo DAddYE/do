@@ -5,20 +5,22 @@ module DO
       options = {}
       args.each_with_index do |arg, i|
         case arg
-          # --foo=bar
-          when /=/
-            key, value = *arg.split("=")
-            options[key.sub(/^-{1,2}/,'').to_sym] = value
-          # --no-foo
-          when /^-{1,2}no-(.+)/
-            options[$1.to_sym] = false
-          # --foo bar
-          # --foo
-          # -foo
-          when /^-{1,2}(.+)/
-            key = $1.to_sym
-            value = args[i+1] && args[i+1] !~ /^-{1,2}/ ? args.delete_at(i+1) : true
-            options[key] = value
+        # --foo=bar
+        when /=/
+          key, value = *arg.split("=")
+          options[key.sub(/^-{1,2}/,'').to_sym] = value
+        # --no-foo
+        when /^-{1,2}no-(.+)/
+          options[$1.to_sym] = false
+        # --foo bar
+        # --foo
+        # -foo
+        when /^-{1,2}(.+)/
+          key = $1.to_sym
+          value = args[i+1] && args[i+1] !~ /^-{1,2}/ ? args.delete_at(i+1) : true
+          options[key] = value
+        when Hash
+          options.merge!(arg)
         end
       end
 

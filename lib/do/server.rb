@@ -111,7 +111,7 @@ module DO
     ##
     # Return the content of a given file
     #
-    def read(file)
+    def cat(file)
       run("cat #{file}", :silent => true)
     end
 
@@ -201,6 +201,11 @@ module DO
       end
     end
     alias :gsub :replace
+
+    def create_file(text, file)
+      sftp.file.open(file, 'w') { |f| f.write text }
+      log 'written %s' % file
+    end
 
     ##
     # Append text into a given file in a specified location
