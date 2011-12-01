@@ -69,6 +69,7 @@ module DO
     #
     def run(*args)
       options = args.last.is_a?(Hash) ? args.pop : {}
+      options[:pty] = true unless options.has_key?(:pty)
       cmd = args.join(" ")
       if options[:as]
         if options[:as] == 'root'
@@ -80,19 +81,17 @@ module DO
       log cmd
       result = ""
       ssh.open_channel do |channel|
-        channel.request_pty do |c, success|
-          raise "could not request pty" unless success
-          channel.exec cmd
-          channel.on_data do |c_, data|
-            result << data
-            DO_LOGGER.print(data) unless options[:silent]
-            if options[:input]
-              match = options[:match] || /password/i
-              if data =~ match
-                options[:input] += "\n" if options[:input][-1] != ?\n
-                channel.send_data(options[:input])
-                DO_LOGGER.puts(options[:input]) unless options[:silent] || data =~ /password/i
-              end
+        channel.request_pty if options[:input] || options[:pty]
+        channel.exec cmd
+        channel.on_data do |c, data|
+          result << data
+          DO_LOGGER.print(data) unless options[:silent]
+          if options[:input]
+            match = options[:match] || /password/i
+            if data =~ match
+              options[:input] += "\n" if options[:input][-1] != ?\n
+              channel.send_data(options[:input])
+              DO_LOGGER.puts(options[:input]) unless options[:silent] || data =~ /password/i
             end
           end
         end
