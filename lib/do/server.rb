@@ -6,6 +6,8 @@ module DO
     include DO::Utils
 
     attr_reader :name, :host, :user, :role, :options
+    # Configuration
+    attr_accessor :request_pty, :hidden, :silent
 
     ##
     # Initialize a new DO Server
@@ -20,6 +22,7 @@ module DO
     #
     def initialize(name, host, user, options={})
       @name, @host, @user, @role, @options = name, host, user, options.delete(:role), options
+      @request_pty, @hidden, @silence = true, false, false
     end
 
     ##
@@ -69,7 +72,12 @@ module DO
     #
     def run(*args)
       options = args.last.is_a?(Hash) ? args.pop : {}
-      options[:pty] = true unless options.has_key?(:pty)
+
+      # Set default options if not given
+      options[:pty]    = request_pty unless options.has_key?(:pty)
+      options[:hidden] = hidden      unless options.has_key?(:hidden)
+      options[:silent] = silent      unless options.has_key?(:silent)
+
       cmd = args.join(" ")
       if options[:as]
         if options[:as] == 'root'
@@ -78,20 +86,22 @@ module DO
           cmd = "su #{options[:as]} -c '#{cmd.gsub("'", "'\\\\''")}'"
         end
       end
-      log cmd
+      log(cmd) unless options[:hidden]
       result = ""
       ssh.open_channel do |channel|
         channel.request_pty if options[:input] || options[:pty]
         channel.exec cmd
         channel.on_data do |c, data|
           result << data
-          DO_LOGGER.print(data) unless options[:silent]
+          unless options[:silent] || options[:hidden]
+            DO_LOGGER.print(data); DO_LOGGER.flush
+          end
           if options[:input]
             match = options[:match] || /password/i
             if data =~ match
               options[:input] += "\n" if options[:input][-1] != ?\n
               channel.send_data(options[:input])
-              DO_LOGGER.puts(options[:input]) unless options[:silent] || data =~ /password/i
+              DO_LOGGER.puts(options[:input]) unless options[:silent] || options[:hidden] || data =~ /password/i
             end
           end
         end
