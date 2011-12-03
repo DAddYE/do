@@ -86,6 +86,7 @@ module DO
       (servers-servers_was).each do |s|
         s.instance_variable_set(:'@role', name)
       end
+      set name, servers.select { |s| s.role == name }.map(&:name)
     end
 
     def roles
@@ -106,7 +107,7 @@ module DO
       servers.push(DO::Server.new(name, host, user, options))
       current = servers[-1]
       set current.name, current
-      set current.role, servers.select { |s| s.role == current.role } if current.role
+      set current.role, servers.select { |s| s.role == current.role }.map(&:name) if current.role
       task name do |opts, b|
         @_current_server = servers.find { |s| s.name == current.name }
         begin

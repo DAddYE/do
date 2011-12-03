@@ -114,7 +114,7 @@ module DO
     # Returns true if a given file exist on the remote server
     #
     def exist?(file)
-      run("test -e #{file} && echo True", :silent => true) == "True"
+      run("test -e #{file} && echo True", :hidden => true) == "True"
     end
 
     ##
