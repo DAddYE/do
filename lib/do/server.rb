@@ -113,15 +113,17 @@ module DO
     ##
     # Returns true if a given file exist on the remote server
     #
-    def exist?(file)
-      run("test -e #{file} && echo True", :hidden => true) == "True"
+    def exist?(file, options={})
+      options = { :hidden => true }.merge(options)
+      run("test -e #{file} && echo True", options) == "True"
     end
 
     ##
     # Return the content of a given file
     #
-    def cat(file)
-      run("cat #{file}", :silent => true)
+    def cat(file, options={})
+      options = { :hidden => true }.merge(options)
+      run("cat #{file}", options)
     end
 
     ##

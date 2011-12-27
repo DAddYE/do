@@ -11,17 +11,13 @@ module DO
     def servers
       @_servers ||= []
     end
-
-    def all_remotes
-      servers.map(&:name)
-    end
+    alias :all_remotes :servers
 
     def remotes
       @_remotes ||= begin
         name = ARGV[0]
         servers.select { |s| s.name.to_s == name } + servers.select { |s| s.role.to_s == name }
       end
-      @_remotes.map(&:name)
     end
     alias :remote :remotes
 
@@ -78,7 +74,6 @@ module DO
     def load_recipe(path)
       instance_eval(File.read(path), __FILE__, __LINE__)
     end
-    alias :load :load_recipe
 
     def role(name)
       servers_was = servers.dup
@@ -86,7 +81,7 @@ module DO
       (servers-servers_was).each do |s|
         s.instance_variable_set(:'@role', name)
       end
-      set name, servers.select { |s| s.role == name }.map(&:name)
+      set name, servers.select { |s| s.role == name }
     end
 
     def roles
@@ -107,7 +102,7 @@ module DO
       servers.push(DO::Server.new(name, host, user, options))
       current = servers[-1]
       set current.name, current
-      set current.role, servers.select { |s| s.role == current.role }.map(&:name) if current.role
+      set current.role, servers.select { |s| s.role == current.role } if current.role
       task name do |opts, b|
         @_current_server = servers.find { |s| s.name == current.name }
         begin

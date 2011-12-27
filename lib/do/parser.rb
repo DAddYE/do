@@ -31,7 +31,7 @@ module DO
           when /^false$/i  then options[k] = false
           when /^\d+$/     then options[k] = v.to_i
           when /^[\d\.]+$/ then options[k] = v.to_f
-          when /,/         then options[k] = v.split(",")
+          when /,/         then options[k] = v.split(",").map(&:strip)
         end
       end
 
