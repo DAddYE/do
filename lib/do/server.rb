@@ -140,11 +140,11 @@ module DO
       sftp.upload!(from, to, options) do |event, uploader, *args|
         case event
         when :put
-          DO_LOGGER.print("\r" << DO_LOGGER_FORMAT % [user, name, "writing: #{to} (#{args[1] * 100 / args[0].size}%)"]); DO_LOGGER.flush
+          DO_LOGGER.print("\r" + DO_LOGGER_FORMAT % [user, name, "writing: #{args[0].local} (#{(args[1].to_f * 100 / args[0].size.to_f).to_i}%)"]); DO_LOGGER.flush
         when :finish
-          DO_LOGGER.puts("\r" << DO_LOGGER_FORMAT % [user, name, "writing: #{to} (100%)"]); DO_LOGGER.flush
-        when :mkdir
-          log "creating directory #{args[0]}"
+          DO_LOGGER.puts("\r" + DO_LOGGER_FORMAT % [user, name, "writing: #{to} (100%)"]); DO_LOGGER.flush
+        # when :mkdir
+        #   log "creating directory #{args[0]}"
         end
       end
     end
@@ -164,11 +164,12 @@ module DO
       sftp.download!(from, to, options) do |event, downloader, *args|
         case event
         when :get
-          DO_LOGGER.print("\r" << DO_LOGGER_FORMAT % [user, name, "sending: #{from} (#{args[1] * 100 / args[0].size}%)"]); DO_LOGGER.flush
+          size = args[0].size ? args[0].size : sftp.stat!(from).size
+          DO_LOGGER.print("\r" + DO_LOGGER_FORMAT % [user, name, "sending: #{args[0].remote} (#{(args[1].to_f * 100 / size.to_f).to_i}%)"]); DO_LOGGER.flush
         when :finish
-          DO_LOGGER.puts("\r" << DO_LOGGER_FORMAT % [user, name, "sending: #{from} (100%)"]); DO_LOGGER.flush
-        when :mkdir
-          log "creating directory #{args[0]}"
+          DO_LOGGER.puts("\r" + DO_LOGGER_FORMAT % [user, name, "sending: #{from} (100%)"]); DO_LOGGER.flush
+        # when :mkdir
+        #   log "creating directory #{args[0]}"
         end
       end
     end
