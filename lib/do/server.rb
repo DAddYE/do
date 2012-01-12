@@ -68,17 +68,28 @@ module DO
     # ==== Examples:
     #   run 'ls -al'
     #   run 'ls', '-al'
+    #   run do |cmd|
+    #     cmd << 'cd /mnt/www/apps'
+    #     cmd << 'tar zxcf /tmp/backup.tar.gz project'
+    #   end
     #   run 'mysqladmin -u root -p password 'new', :input => 'oldpassword'
     #
-    def run(*args)
+    def run(*args, &block)
       options = args.last.is_a?(Hash) ? args.pop : {}
+      { :sep => " "}.merge(options)
+
+      # If we give a block we run commands one by one
+      if block_given?
+        options.merge!(:sep => " && ")
+        yield args
+      end
 
       # Set default options if not given
       options[:pty]    = request_pty unless options.has_key?(:pty)
       options[:hidden] = hidden      unless options.has_key?(:hidden)
       options[:silent] = silent      unless options.has_key?(:silent)
 
-      cmd = args.join(" ")
+      cmd = args.join(options[:sep] || ' ')
       if options[:as]
         if options[:as] == 'root'
           cmd = "sudo #{cmd}"
@@ -140,7 +151,7 @@ module DO
       sftp.upload!(from, to, options) do |event, uploader, *args|
         case event
         when :put
-          DO_LOGGER.print("\r" + DO_LOGGER_FORMAT % [user, name, "writing: #{args[0].local} (#{(args[1].to_f * 100 / args[0].size.to_f).to_i}%)"]); DO_LOGGER.flush
+          DO_LOGGER.print("\r" + DO_LOGGER_FORMAT % [user, name, "writing: #{to} (#{(args[1].to_f * 100 / args[0].size.to_f).to_i}%)"]); DO_LOGGER.flush
         when :finish
           DO_LOGGER.puts("\r" + DO_LOGGER_FORMAT % [user, name, "writing: #{to} (100%)"]); DO_LOGGER.flush
         # when :mkdir
@@ -165,7 +176,7 @@ module DO
         case event
         when :get
           size = args[0].size ? args[0].size : sftp.stat!(from).size
-          DO_LOGGER.print("\r" + DO_LOGGER_FORMAT % [user, name, "sending: #{args[0].remote} (#{(args[1].to_f * 100 / size.to_f).to_i}%)"]); DO_LOGGER.flush
+          DO_LOGGER.print("\r" + DO_LOGGER_FORMAT % [user, name, "sending: #{from} (#{(args[1].to_f * 100 / size.to_f).to_i}%)"]); DO_LOGGER.flush
         when :finish
           DO_LOGGER.puts("\r" + DO_LOGGER_FORMAT % [user, name, "sending: #{from} (100%)"]); DO_LOGGER.flush
         # when :mkdir

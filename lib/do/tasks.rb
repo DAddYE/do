@@ -52,7 +52,7 @@ module DO
       if task[:in].empty?
         task[:block].arity == 1 ? task[:block].call(opts) : task[:block].call if task[:block]
       else
-        task[:in] = send(task[:in][0]) if task[:in].size == 1 && (class << self; self; end).method_defined?(task[:in][0])
+        task[:in] = send(task[:in][0]) if task[:in].size == 1 && singleton_class.method_defined?(task[:in][0])
         Array(task[:in]).each do |d|
           d = d.is_a?(DO::Server) ? d.name : d
           parent = task_find(d)
@@ -64,7 +64,7 @@ module DO
         end
       end
     rescue NotFound => e
-      (class << self; self; end).method_defined?(args_was[0]) ? send(args_was.shift) : raise(e)
+      singleton_class.method_defined?(args_was[0]) ? send(args_was.shift) : raise(e)
     end
     alias :run_task :task_run
 

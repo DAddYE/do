@@ -42,7 +42,7 @@ module DO
     # Set an option to the given value
     #
     def set(name, value)
-      (class << self; self; end).send(:define_method, name) { value }
+      singleton_class.send(:define_method, name) { value }
     end
 
     ##
@@ -73,6 +73,9 @@ module DO
 
     def load_recipe(path)
       instance_eval(File.read(path), __FILE__, __LINE__)
+    rescue Exception => e
+      puts path
+      raise(e)
     end
 
     def role(name)
