@@ -1,3 +1,3 @@
 module DO
-  VERSION = '0.2.0.h' unless defined?(DO::VERSION)
+  VERSION = '0.2.0.i' unless defined?(DO::VERSION)
 end
