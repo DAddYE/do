@@ -15,8 +15,8 @@ module DO
 
     def remotes
       @_remotes ||= begin
-        name = ARGV[0]
-        servers.select { |s| s.name.to_s == name } + servers.select { |s| s.role.to_s == name }
+        names = ARGV[0].split('+')
+        servers.select { |s| names.include?(s.name.to_s) } | servers.select { |s| names.include?(s.role.to_s) }
       end
     end
     alias :remote :remotes
@@ -107,11 +107,11 @@ module DO
       set current.name, current
       set current.role, servers.select { |s| s.role == current.role } if current.role
       task name do |opts, b|
-        @_current_server = servers.find { |s| s.name == current.name }
+        server_was, @_current_server = @_current_server, servers.find { |s| s.name == current.name }
         begin
           b.arity == 1 ? b.call(opts) : b.call
         ensure
-          @_current_server = nil
+          @_current_server = server_was
         end
       end
     end
