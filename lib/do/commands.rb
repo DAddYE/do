@@ -52,12 +52,14 @@ module DO
     #   ~/do/*.rake
     #   ./Do
     #   ./Dofile
+    #   ./do/**/*.rake
     #
     # DO_PATH, default is ~/do.
     #
     def recipes
       @_recipes ||= (
         %w[dorc **/*.rake].map { |f| Dir[File.join(DO_PATH, f)] }.flatten +
+        %w[./do/**/*.rake].map { |f| Dir[File.expand_path(f)] }.flatten +
         %w[./Do ./Dofile].map { |f| File.expand_path(f) } <<
         File.expand_path('../common.rb', __FILE__)
       ).reject { |f| !File.exist?(f) }
