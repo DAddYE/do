@@ -2,7 +2,7 @@
 
 DO is a thin framework useful to manage remote servers through ssh.
 
-There are many other alternatives, once of them is
+There are many other alternatives, one of them is
 [capistrano](https://github.com/capistrano/capistrano).
 
 So why another one? Basically I need:
@@ -15,11 +15,11 @@ So why another one? Basically I need:
 
 What really is *DO* ?
 
-* some like brew
-* some like rake
-* some like capistrano
+* somewhat like brew
+* somewhat like rake
+* somewhat like capistrano
 
-All togheter mixed to make your life easier.
+All together mixed to make your life easier.
 
 As mentioned before do is a fun mix of capistrano, rake, thor and brew.
 
@@ -42,7 +42,7 @@ Now you can edit your `~/.do/dorc` adding your **servers** or **plugins**.
 
 ## DO - Files
 
-There are some way to generate **DO** tasks, you can:
+There are different ways to generate **DO** tasks, you can:
 
 * Create a file called `Do` or `Dofile` in your project directory (_project wide_)
 * Create `*.rake` files in `~/.do` directory (_system wide_)
